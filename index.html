@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ice Dodo Launcher</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      color: #fff;
+    }
+    .phone-frame {
+      width: 400px;
+      height: 800px;
+      max-width: 95%;
+      max-height: 90vh;
+      background: black;
+      border-radius: 40px;
+      border: 8px solid #222;
+      box-shadow: 0 0 30px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #5C6AC4;
+      margin-bottom: 30px;
+    }
+    .launch-button {
+      background: #5C6AC4;
+      color: #fff;
+      padding: 20px 40px;
+      font-size: 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s;
+    }
+    .launch-button:hover {
+      transform: scale(1.05);
+    }
+    p {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <h1>Ice Dodo</h1>
+    <a class="launch-button" href="https://icedodo.io/" target="_blank" rel="noopener noreferrer">Play Ice Dodo</a>
+    <p>If the game doesn’t open, check your network or try a different browser.</p>
+  </div>
+
+  <script>
+    window.onload = function() {
+      console.log("Ice Dodo launcher loaded.");
+    };
+  </script>
+</body>
+</html>
