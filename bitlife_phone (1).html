@@ -1,0 +1,395 @@
+import React, { useState, useEffect } from 'react';
+import { Heart, Brain, Smile, DollarSign, Briefcase, GraduationCap, Home, Users, Gift, Activity } from 'lucide-react';
+
+const LifeSimulator = () => {
+  const [character, setCharacter] = useState(null);
+  const [age, setAge] = useState(0);
+  const [events, setEvents] = useState([]);
+  const [gameOver, setGameOver] = useState(false);
+
+  // Initialize character
+  const startNewLife = () => {
+    const firstNames = ['Emma', 'Liam', 'Olivia', 'Noah', 'Ava', 'Ethan', 'Sophia', 'Mason', 'Isabella', 'James'];
+    const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez'];
+    
+    const newCharacter = {
+      firstName: firstNames[Math.floor(Math.random() * firstNames.length)],
+      lastName: lastNames[Math.floor(Math.random() * lastNames.length)],
+      health: 100,
+      happiness: 80,
+      smarts: Math.floor(Math.random() * 30) + 40,
+      looks: Math.floor(Math.random() * 30) + 40,
+      money: 0,
+      job: null,
+      education: 'None',
+      relationships: [],
+      assets: []
+    };
+    
+    setCharacter(newCharacter);
+    setAge(0);
+    setEvents([`👶 You were born as ${newCharacter.firstName} ${newCharacter.lastName}!`]);
+    setGameOver(false);
+  };
+
+  // Age up function
+  const ageUp = () => {
+    if (gameOver || !character) return;
+    
+    const newAge = age + 1;
+    setAge(newAge);
+    
+    // Generate random event
+    const event = generateEvent(newAge);
+    setEvents(prev => [event, ...prev.slice(0, 9)]);
+    
+    // Update stats
+    const healthChange = Math.floor(Math.random() * 10) - 5;
+    const happinessChange = Math.floor(Math.random() * 10) - 5;
+    
+    let newHealth = Math.max(0, Math.min(100, character.health + healthChange));
+    let newHappiness = Math.max(0, Math.min(100, character.happiness + happinessChange));
+    
+    // Add income if has job
+    let moneyChange = 0;
+    if (character.job && newAge >= 18) {
+      moneyChange = character.job.salary;
+    }
+    
+    setCharacter(prev => ({
+      ...prev,
+      health: newHealth,
+      happiness: newHappiness,
+      money: prev.money + moneyChange
+    }));
+    
+    // Check for death
+    if (newHealth <= 0 || newAge >= 120) {
+      setGameOver(true);
+      setEvents(prev => [`💀 You died at age ${newAge}. Your legacy lives on!`, ...prev]);
+    }
+  };
+
+  const generateEvent = (currentAge) => {
+    const events = [];
+    
+    if (currentAge === 5) {
+      events.push('🎒 You started kindergarten and made your first friends!');
+    } else if (currentAge === 12) {
+      events.push('🎮 You got your first video game console for your birthday!');
+    } else if (currentAge === 16) {
+      events.push('🚗 You got your driver\'s license!');
+    } else if (currentAge === 18) {
+      events.push('🎓 You graduated high school!');
+    } else {
+      const randomEvents = [
+        '😊 You had a great day with friends!',
+        '📚 You learned something interesting today.',
+        '🎉 You went to an amazing party!',
+        '🎬 You watched a fantastic movie.',
+        '🍕 You had the best pizza of your life!',
+        '🎵 You discovered a new favorite song.',
+        '☀️ You enjoyed a beautiful sunny day.',
+        '🎨 You created something artistic.',
+        '🏃 You went for a refreshing run.',
+        '📱 You got a new phone!',
+        '🎁 Someone gave you a thoughtful gift.',
+        '🌟 You had a moment of clarity about life.',
+        '🎪 You went to the circus!',
+        '🏖️ You spent the day at the beach.',
+        '❄️ You built a snowman in winter.'
+      ];
+      events.push(randomEvents[Math.floor(Math.random() * randomEvents.length)]);
+    }
+    
+    return events[0];
+  };
+
+  const handleAction = (action) => {
+    if (gameOver) return;
+    
+    let newEvent = '';
+    let statChanges = {};
+    
+    switch(action) {
+      case 'study':
+        const smartsIncrease = Math.floor(Math.random() * 10) + 5;
+        statChanges = { smarts: Math.min(100, character.smarts + smartsIncrease) };
+        newEvent = `📖 You studied hard! Smarts +${smartsIncrease}`;
+        break;
+        
+      case 'gym':
+        const looksIncrease = Math.floor(Math.random() * 8) + 3;
+        const healthIncrease = Math.floor(Math.random() * 5) + 2;
+        statChanges = { 
+          looks: Math.min(100, character.looks + looksIncrease),
+          health: Math.min(100, character.health + healthIncrease)
+        };
+        newEvent = `💪 You worked out! Looks +${looksIncrease}, Health +${healthIncrease}`;
+        break;
+        
+      case 'meditate':
+        const happinessIncrease = Math.floor(Math.random() * 15) + 10;
+        statChanges = { happiness: Math.min(100, character.happiness + happinessIncrease) };
+        newEvent = `🧘 You meditated and found inner peace! Happiness +${happinessIncrease}`;
+        break;
+        
+      case 'job':
+        if (age >= 18 && !character.job) {
+          const jobs = [
+            { title: 'Cashier', salary: 25000, emoji: '🏪' },
+            { title: 'Barista', salary: 28000, emoji: '☕' },
+            { title: 'Delivery Driver', salary: 32000, emoji: '🚗' },
+            { title: 'Retail Associate', salary: 30000, emoji: '🛍️' }
+          ];
+          const newJob = jobs[Math.floor(Math.random() * jobs.length)];
+          statChanges = { job: newJob };
+          newEvent = `${newJob.emoji} You got a job as a ${newJob.title}! Salary: $${newJob.salary.toLocaleString()}/year`;
+        } else if (age < 18) {
+          newEvent = '❌ You need to be 18 to get a job!';
+        } else {
+          newEvent = '❌ You already have a job!';
+        }
+        break;
+        
+      case 'education':
+        if (age >= 18 && character.education === 'None') {
+          const cost = 50000;
+          if (character.money >= cost) {
+            statChanges = { 
+              education: 'College Degree',
+              money: character.money - cost,
+              smarts: Math.min(100, character.smarts + 20)
+            };
+            newEvent = `🎓 You graduated from college! Smarts +20 (Cost: $${cost.toLocaleString()})`;
+          } else {
+            newEvent = `❌ You need $${cost.toLocaleString()} for college!`;
+          }
+        } else if (age < 18) {
+          newEvent = '❌ You need to be 18 for college!';
+        } else {
+          newEvent = '✅ You already have a degree!';
+        }
+        break;
+        
+      case 'buy-house':
+        const houseCost = 200000;
+        if (character.money >= houseCost && !character.assets.includes('house')) {
+          statChanges = { 
+            money: character.money - houseCost,
+            assets: [...character.assets, 'house'],
+            happiness: Math.min(100, character.happiness + 20)
+          };
+          newEvent = `🏡 You bought a house! Happiness +20 (Cost: $${houseCost.toLocaleString()})`;
+        } else if (character.assets.includes('house')) {
+          newEvent = '❌ You already own a house!';
+        } else {
+          newEvent = `❌ You need $${houseCost.toLocaleString()} to buy a house!`;
+        }
+        break;
+        
+      case 'buy-car':
+        const carCost = 30000;
+        if (character.money >= carCost && !character.assets.includes('car')) {
+          statChanges = { 
+            money: character.money - carCost,
+            assets: [...character.assets, 'car'],
+            happiness: Math.min(100, character.happiness + 10)
+          };
+          newEvent = `🚗 You bought a car! Happiness +10 (Cost: $${carCost.toLocaleString()})`;
+        } else if (character.assets.includes('car')) {
+          newEvent = '❌ You already own a car!';
+        } else {
+          newEvent = `❌ You need $${carCost.toLocaleString()} to buy a car!`;
+        }
+        break;
+    }
+    
+    if (Object.keys(statChanges).length > 0) {
+      setCharacter(prev => ({ ...prev, ...statChanges }));
+    }
+    
+    if (newEvent) {
+      setEvents(prev => [newEvent, ...prev.slice(0, 9)]);
+    }
+  };
+
+  useEffect(() => {
+    startNewLife();
+  }, []);
+
+  if (!character) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 p-4">
+      <div className="max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold mb-1">🎮 Life Simulator</h1>
+            <p className="text-lg opacity-90">{character.firstName} {character.lastName}</p>
+            <p className="text-2xl font-bold mt-2">Age: {age}</p>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-3 p-4 bg-gray-50">
+          <div className="bg-white p-3 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <Heart className="text-red-500" size={20} />
+              <span className="font-semibold">{character.health}%</span>
+            </div>
+            <p className="text-xs text-gray-600 mt-1">Health</p>
+          </div>
+          
+          <div className="bg-white p-3 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <Smile className="text-yellow-500" size={20} />
+              <span className="font-semibold">{character.happiness}%</span>
+            </div>
+            <p className="text-xs text-gray-600 mt-1">Happiness</p>
+          </div>
+          
+          <div className="bg-white p-3 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <Brain className="text-blue-500" size={20} />
+              <span className="font-semibold">{character.smarts}%</span>
+            </div>
+            <p className="text-xs text-gray-600 mt-1">Smarts</p>
+          </div>
+          
+          <div className="bg-white p-3 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <Activity className="text-green-500" size={20} />
+              <span className="font-semibold">{character.looks}%</span>
+            </div>
+            <p className="text-xs text-gray-600 mt-1">Looks</p>
+          </div>
+        </div>
+
+        {/* Money & Info */}
+        <div className="p-4 bg-white border-b">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <DollarSign className="text-green-600" size={20} />
+              <span className="font-bold text-lg">${character.money.toLocaleString()}</span>
+            </div>
+            {character.job && (
+              <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                {character.job.emoji} {character.job.title}
+              </span>
+            )}
+          </div>
+          
+          {character.education !== 'None' && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <GraduationCap size={16} />
+              <span>{character.education}</span>
+            </div>
+          )}
+          
+          {character.assets.length > 0 && (
+            <div className="flex gap-2 mt-2">
+              {character.assets.includes('house') && <span className="text-2xl">🏡</span>}
+              {character.assets.includes('car') && <span className="text-2xl">🚗</span>}
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="p-4 bg-gray-50">
+          <h3 className="font-bold text-gray-700 mb-3">Actions</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <button 
+              onClick={() => handleAction('study')}
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition"
+            >
+              📚 Study
+            </button>
+            <button 
+              onClick={() => handleAction('gym')}
+              className="bg-green-500 hover:bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition"
+            >
+              💪 Gym
+            </button>
+            <button 
+              onClick={() => handleAction('meditate')}
+              className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition"
+            >
+              🧘 Meditate
+            </button>
+            <button 
+              onClick={() => handleAction('job')}
+              className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition"
+            >
+              💼 Find Job
+            </button>
+            <button 
+              onClick={() => handleAction('education')}
+              className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition"
+            >
+              🎓 College
+            </button>
+            <button 
+              onClick={() => handleAction('buy-house')}
+              className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition"
+            >
+              🏡 Buy House
+            </button>
+            <button 
+              onClick={() => handleAction('buy-car')}
+              className="bg-red-500 hover:bg-red-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition"
+            >
+              🚗 Buy Car
+            </button>
+            <button 
+              onClick={ageUp}
+              disabled={gameOver}
+              className={`${gameOver ? 'bg-gray-400' : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'} text-white py-2 px-3 rounded-lg text-sm font-bold transition`}
+            >
+              ⏭️ Age Up
+            </button>
+          </div>
+        </div>
+
+        {/* Events Log */}
+        <div className="p-4 bg-white">
+          <h3 className="font-bold text-gray-700 mb-3">📰 Life Events</h3>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {events.map((event, index) => (
+              <div key={index} className="bg-gray-50 p-2 rounded text-sm border-l-4 border-purple-500">
+                {event}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Game Over / New Life */}
+        {gameOver && (
+          <div className="p-4 bg-red-50 border-t-4 border-red-500">
+            <p className="text-center text-red-700 font-bold mb-3">💀 Game Over</p>
+            <button 
+              onClick={startNewLife}
+              className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white py-3 px-4 rounded-lg font-bold transition"
+            >
+              🔄 Start New Life
+            </button>
+          </div>
+        )}
+
+        {!gameOver && (
+          <div className="p-4 bg-gray-50">
+            <button 
+              onClick={startNewLife}
+              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-lg font-medium transition"
+            >
+              🔄 Restart Life
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default LifeSimulator;
